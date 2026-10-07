@@ -19,16 +19,30 @@ import {
 } from './panels';
 import { A, ArrowOut, Button, Chevron } from './ui';
 
+// `navId` = id item yang sama di pengaturan Navigation (draft.tabs).
+// Panel tanpa `navId` (Profile, Navigation, Stories, Data) selalu memakai label bawaan.
+// `label` pada panel ber-navId hanya fallback bila label di pengaturan kosong.
 const PANELS = [
   { id: 'profile', label: 'Profile', Component: ProfilePanel },
   { id: 'tabs', label: 'Navigation', Component: TabsPanel },
   { id: 'posts', label: 'Stories', Component: PostsPanel },
-  { id: 'resume', label: 'Resume', Component: ResumePanel },
-  { id: 'activity', label: 'Activity', Component: ActivityPanel },
-  { id: 'lists', label: 'Lists', Component: ListsPanel },
-  { id: 'about', label: 'About', Component: AboutPanel },
+  { id: 'resume', label: 'Resume', navId: 'resume', Component: ResumePanel },
+  { id: 'activity', label: 'Activity', navId: 'activity', Component: ActivityPanel },
+  { id: 'lists', label: 'Lists', navId: 'lists', Component: ListsPanel },
+  { id: 'about', label: 'About', navId: 'about', Component: AboutPanel },
   { id: 'data', label: 'Data', Component: DataPanel },
 ];
+
+// Ambil peta { navId: label } dari draft. Sesuaikan bila struktur datanya berbeda.
+function getNavLabels(draft) {
+  const list = draft?.tabs || draft?.navigation || draft?.nav;
+  const items = Array.isArray(list) ? list : Array.isArray(list?.items) ? list.items : [];
+  const out = {};
+  items.forEach((t) => {
+    if (t && t.id && typeof t.label === 'string' && t.label.trim()) out[t.id] = t.label;
+  });
+  return out;
+}
 
 function setIn(obj, path, value) {
   if (path.length === 0) return value;
@@ -86,7 +100,7 @@ export default function AdminScreen() {
   );
 }
 
-function TabBar({ active, onChange }) {
+function TabBar({ panels, active, onChange }) {
   const ref = useRef(null);
   const x = useRef(0);
   return (
@@ -101,7 +115,7 @@ function TabBar({ active, onChange }) {
         style={{ flex: 1 }}
         contentContainerStyle={{ columnGap: 40, paddingRight: 24 }}
       >
-        {PANELS.map((p) => {
+        {panels.map((p) => {
           const on = p.id === active;
           return (
             <Pressable
@@ -137,6 +151,15 @@ function Editor({ token, content, setContent, onUnauthorized, onLogout }) {
 
   const dirty = useMemo(() => JSON.stringify(draft) !== JSON.stringify(content), [draft, content]);
   const set = useCallback((path, value) => setDraft((d) => setIn(d, path, value)), []);
+
+  // Label tab dashboard mengikuti draft Navigation (langsung berubah saat mengetik).
+  const panels = useMemo(() => {
+    const labels = getNavLabels(draft);
+    return PANELS.map((p) => ({
+      ...p,
+      label: (p.navId && labels[p.navId]) || p.label,
+    }));
+  }, [draft]);
 
   // Peringatan sebelum menutup tab bila ada perubahan belum disimpan (web).
   useEffect(() => {
@@ -198,7 +221,7 @@ function Editor({ token, content, setContent, onUnauthorized, onLogout }) {
     setStatus({ kind: '', text: '' });
   };
 
-  const active = PANELS.find((p) => p.id === panel) || PANELS[0];
+  const active = panels.find((p) => p.id === panel) || panels[0];
   const Panel = active.Component;
   const pad = isTablet ? 39 : 24;
 
@@ -227,7 +250,7 @@ function Editor({ token, content, setContent, onUnauthorized, onLogout }) {
             Dashboard
           </Text>
 
-          <TabBar active={panel} onChange={setPanel} />
+          <TabBar panels={panels} active={panel} onChange={setPanel} />
 
           {status.text ? (
             <Text style={{ color: status.kind === 'error' ? A.danger : A.ok, fontFamily: fonts.main, fontSize: 15, marginTop: 18 }}>

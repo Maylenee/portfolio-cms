@@ -7,7 +7,7 @@ export default function Header({ profile }) {
   const { px } = useLayout();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 27 }}>
-      <Avatar uri={profile.avatar} name={profile.name} size={px(62)} />
+      <Avatar uri={profile.avatar} name={profile.name} size={px(52)} />
       <Text
         accessibilityRole="header"
         style={{

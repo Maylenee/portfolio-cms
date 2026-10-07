@@ -162,19 +162,20 @@ export function ActivityPanel({ draft, set }) {
 export function ListsPanel({ draft, set }) {
   return (
     <View>
-      <Section title="Lists" first>
+      <Section title="Certifications" first>
         <ListEditor
           items={draft.lists}
           onChange={(v) => set(['lists'], v)}
           addLabel="Koleksi"
-          makeItem={() => ({ title: 'Koleksi baru', description: 'Koleksi', postIds: [] })}
+          makeItem={() => ({ title: 'Koleksi baru', description: 'Koleksi', image: '', postIds: [] })}
           itemTitle={(l) => l.title}
           itemSubtitle={(l) => l.description}
-          itemRight={(l) => `${l.postIds.length} cerita`}
+          itemRight={(l) => `${(l.postIds || []).length} cerita`}
           extra={{ posts: draft.posts }}
           fields={[
             { key: 'title', label: 'Judul' },
             { key: 'description', label: 'Keterangan singkat' },
+            { key: 'image', label: 'Gambar', type: 'image' },
             { key: 'postIds', label: 'Isi koleksi', type: 'posts' },
           ]}
         />
