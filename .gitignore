@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.expo/
+.edgeone/
+.env
+.env.local
+*.log

@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Portfolio CMS",
+    "slug": "portfolio-cms",
+    "version": "1.0.0",
+    "orientation": "default",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#000000",
+    "ios": { "supportsTablet": true },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#000000",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/favicon.png",
+      "name": "Portfolio",
+      "shortName": "Portfolio",
+      "backgroundColor": "#000000",
+      "themeColor": "#000000"
+    }
+  }
+}

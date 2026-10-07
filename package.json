@@ -1,0 +1,30 @@
+{
+  "name": "portfolio-cms",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "web": "expo start --web",
+    "ios": "expo start --ios",
+    "android": "expo start --android",
+    "lint": "eslint .",
+    "build": "expo export --platform web",
+    "dev:edge": "edgeone pages dev",
+    "test:edge": "node scripts/test-edge.mjs"
+  },
+  "dependencies": {
+    "@expo/metro-runtime": "~57.0.16",
+    "expo": "~57.0.27",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-dom": "^19.2.3",
+    "react-native": "0.86.3",
+    "react-native-svg": "^15.15.4",
+    "react-native-web": "^0.21.3"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.4",
+    "eslint-config-expo": "~57.0.2"
+  }
+}
