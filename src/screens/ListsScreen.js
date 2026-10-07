@@ -28,12 +28,6 @@ export default function ListsScreen({ content }) {
           accessibilityState={{ expanded: open }}
           onPress={() => setOpenId(open ? null : list.id)}
         >
-          <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 11 }}>
-            <Avatar uri={profile.avatar} name={profile.name} size={px(26)} />
-            <Text style={{ color: colors.meta, fontFamily: fonts.main, fontSize: px(15) }}>
-              {profile.name}
-            </Text>
-          </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', columnGap: px(36), marginTop: px(24) }}>
             <View style={{ flex: 1 }}>
               <Text
