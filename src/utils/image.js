@@ -4,7 +4,7 @@ export const canUpload = Platform.OS === 'web';
 
 /**
  * Pilih gambar dari perangkat (web) lalu kecilkan jadi JPEG data-URI,
- * supaya muat disimpan di KV tanpa storage tambahan.
+ * supaya muat disimpan di Blob tanpa storage tambahan.
  */
 export function pickImage(maxSize = 800, quality = 0.82) {
   return new Promise((resolve, reject) => {

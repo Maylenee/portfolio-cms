@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { Text, View } from 'react-native';
 
 import { api, tokenStore } from '../api/client';
-import { colors, fonts } from '../theme';
+import { fonts } from '../theme';
 import { navigate } from '../utils/router';
-import { Button, Field } from './ui';
+import { A, Button, Field } from './ui';
 
 export default function LoginForm({ onLoggedIn, notice }) {
   const [password, setPassword] = useState('');
@@ -28,15 +28,15 @@ export default function LoginForm({ onLoggedIn, notice }) {
 
   return (
     <View style={{ width: '100%', maxWidth: 420, alignSelf: 'center', paddingHorizontal: 24, paddingTop: 72 }}>
-      <Text accessibilityRole="header" style={{ color: colors.text, fontFamily: fonts.main, fontSize: 28, fontWeight: '700', letterSpacing: -0.7, marginBottom: 8 }}>
+      <Text accessibilityRole="header" style={{ color: A.text, fontFamily: fonts.main, fontSize: 28, fontWeight: '700', letterSpacing: -0.7, marginBottom: 8 }}>
         Admin
       </Text>
-      <Text style={{ color: colors.muted, fontFamily: fonts.main, fontSize: 15, marginBottom: 28 }}>
+      <Text style={{ color: A.muted, fontFamily: fonts.main, fontSize: 15, marginBottom: 28 }}>
         Masuk untuk mengelola konten portfolio.
       </Text>
-      {notice ? <Text style={{ color: colors.gold, fontFamily: fonts.main, fontSize: 14, marginBottom: 14 }}>{notice}</Text> : null}
+      {notice ? <Text style={{ color: A.warn, fontFamily: fonts.main, fontSize: 14, marginBottom: 14 }}>{notice}</Text> : null}
       <Field label="Password" value={password} onChange={setPassword} secure onSubmit={submit} />
-      {error ? <Text style={{ color: colors.danger, fontFamily: fonts.main, fontSize: 14, marginBottom: 14 }}>{error}</Text> : null}
+      {error ? <Text style={{ color: A.danger, fontFamily: fonts.main, fontSize: 14, marginBottom: 14 }}>{error}</Text> : null}
       <View style={{ flexDirection: 'row', columnGap: 10 }}>
         <Button kind="primary" label={busy ? 'Memeriksa…' : 'Masuk'} onPress={submit} disabled={busy || !password} />
         <Button kind="ghost" label="Kembali ke situs" onPress={() => navigate('/')} />

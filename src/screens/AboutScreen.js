@@ -64,7 +64,7 @@ export default function AboutScreen({ content }) {
       {services.length > 0 ? (
         <View style={{ marginTop: px(48) }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 17, marginBottom: 22 }}>
-            <Text
+              <Text
               accessibilityRole="header"
               style={{ flex: 1, color: colors.text, fontFamily: fonts.main, fontSize: px(24), fontWeight: '700', letterSpacing: -0.6 }}
             >

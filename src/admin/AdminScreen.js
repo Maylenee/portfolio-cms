@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, SafeAreaView, ScrollView, Text, View } from 'react-native';
 
 import { api, tokenStore } from '../api/client';
 import { useContent } from '../hooks/useContent';
-import { colors, fonts, useLayout } from '../theme';
+import { fonts, useLayout } from '../theme';
 import { confirmAction } from '../utils/confirm';
 import { navigate } from '../utils/router';
 import LoginForm from './LoginForm';
@@ -17,12 +17,12 @@ import {
   ResumePanel,
   TabsPanel,
 } from './panels';
-import { Button } from './ui';
+import { A, ArrowOut, Button, Chevron } from './ui';
 
 const PANELS = [
-  { id: 'profile', label: 'Profil', Component: ProfilePanel },
-  { id: 'tabs', label: 'Tab', Component: TabsPanel },
-  { id: 'posts', label: 'Kegiatan', Component: PostsPanel },
+  { id: 'profile', label: 'Profile', Component: ProfilePanel },
+  { id: 'tabs', label: 'Navigation', Component: TabsPanel },
+  { id: 'posts', label: 'Stories', Component: PostsPanel },
   { id: 'resume', label: 'Resume', Component: ResumePanel },
   { id: 'activity', label: 'Activity', Component: ActivityPanel },
   { id: 'lists', label: 'Lists', Component: ListsPanel },
@@ -40,7 +40,6 @@ function setIn(obj, path, value) {
 
 export default function AdminScreen() {
   const { content, setContent, reload } = useContent();
-  const { isDesktop } = useLayout();
   const [token, setToken] = useState(() => tokenStore.get());
   const [checking, setChecking] = useState(Boolean(tokenStore.get()));
   const [notice, setNotice] = useState('');
@@ -62,15 +61,15 @@ export default function AdminScreen() {
 
   if (checking) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg, padding: 24 }}>
-        <Text style={{ color: colors.muted, fontFamily: fonts.main }}>Memeriksa sesi…</Text>
+      <SafeAreaView style={{ flex: 1, backgroundColor: A.bg, padding: 24 }}>
+        <Text style={{ color: A.muted, fontFamily: fonts.main }}>Memeriksa sesi…</Text>
       </SafeAreaView>
     );
   }
 
   if (!token) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: A.bg }}>
         <LoginForm notice={notice} onLoggedIn={(t) => { setToken(t); setNotice(''); reload(); }} />
       </SafeAreaView>
     );
@@ -81,14 +80,56 @@ export default function AdminScreen() {
       token={token}
       content={content}
       setContent={setContent}
-      isDesktop={isDesktop}
       onUnauthorized={() => logout('Sesi berakhir. Silakan masuk lagi.')}
       onLogout={() => logout()}
     />
   );
 }
 
-function Editor({ token, content, setContent, isDesktop, onUnauthorized, onLogout }) {
+function TabBar({ active, onChange }) {
+  const ref = useRef(null);
+  const x = useRef(0);
+  return (
+    <View style={{ borderBottomWidth: 1, borderBottomColor: A.line, flexDirection: 'row', alignItems: 'center' }}>
+      <ScrollView
+        ref={ref}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        accessibilityRole="tablist"
+        onScroll={(e) => { x.current = e.nativeEvent.contentOffset.x; }}
+        scrollEventThrottle={32}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ columnGap: 40, paddingRight: 24 }}
+      >
+        {PANELS.map((p) => {
+          const on = p.id === active;
+          return (
+            <Pressable
+              key={p.id}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: on }}
+              onPress={() => onChange(p.id)}
+              style={{ paddingVertical: 18, marginBottom: -1, borderBottomWidth: 1, borderBottomColor: on ? A.text : 'transparent' }}
+            >
+              <Text style={{ color: A.text, opacity: on ? 1 : 0.75, fontFamily: fonts.main, fontSize: 17, letterSpacing: -0.2 }}>{p.label}</Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Geser tab"
+        onPress={() => ref.current && ref.current.scrollTo({ x: x.current + 180, animated: true })}
+        style={{ paddingLeft: 12, paddingVertical: 18 }}
+      >
+        <Chevron />
+      </Pressable>
+    </View>
+  );
+}
+
+function Editor({ token, content, setContent, onUnauthorized, onLogout }) {
+  const { px, isTablet } = useLayout();
   const [draft, setDraft] = useState(content);
   const [panel, setPanel] = useState('profile');
   const [busy, setBusy] = useState(false);
@@ -135,9 +176,10 @@ function Editor({ token, content, setContent, isDesktop, onUnauthorized, onLogou
     try {
       await api.resetContent(token);
       const res = await api.getContent();
-      const fresh = res.content || null;
-      if (fresh) setContent(fresh);
-      else {
+      if (res.content) {
+        setContent(res.content);
+        setDraft(res.content);
+      } else {
         const { defaultContent } = await import('../content/defaultContent');
         setContent(defaultContent);
         setDraft(defaultContent);
@@ -158,58 +200,69 @@ function Editor({ token, content, setContent, isDesktop, onUnauthorized, onLogou
 
   const active = PANELS.find((p) => p.id === panel) || PANELS[0];
   const Panel = active.Component;
-
-  const nav = (
-    <ScrollView
-      horizontal={!isDesktop}
-      showsHorizontalScrollIndicator={false}
-      style={isDesktop ? { width: 190, flexGrow: 0 } : { flexGrow: 0, borderBottomColor: colors.border, borderBottomWidth: 1 }}
-      contentContainerStyle={isDesktop ? { paddingVertical: 8 } : { paddingHorizontal: 16, columnGap: 18 }}
-    >
-      {PANELS.map((p) => {
-        const on = p.id === panel;
-        return (
-          <Pressable
-            key={p.id}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: on }}
-            onPress={() => setPanel(p.id)}
-            style={isDesktop
-              ? { paddingVertical: 10, paddingHorizontal: 12, borderRadius: 8, backgroundColor: on ? colors.panelAlt : 'transparent' }
-              : { paddingVertical: 12, borderBottomWidth: 2, borderBottomColor: on ? colors.text : 'transparent' }}
-          >
-            <Text style={{ color: colors.text, opacity: on ? 1 : 0.65, fontFamily: fonts.main, fontSize: 15 }}>{p.label}</Text>
-          </Pressable>
-        );
-      })}
-    </ScrollView>
-  );
+  const pad = isTablet ? 39 : 24;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingHorizontal: 16, paddingVertical: 12, borderBottomColor: colors.border, borderBottomWidth: 1 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 10 }}>
-          <Text accessibilityRole="header" style={{ color: colors.text, fontFamily: fonts.main, fontSize: 18, fontWeight: '700' }}>Admin</Text>
-          {dirty ? <Text style={{ color: colors.gold, fontFamily: fonts.main, fontSize: 13 }}>Belum disimpan</Text> : null}
+    <SafeAreaView style={{ flex: 1, backgroundColor: A.bg }}>
+      <ScrollView
+        style={{ flex: 1, backgroundColor: A.bg }}
+        contentContainerStyle={{ alignItems: 'center', paddingBottom: dirty ? 140 : 72 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={{ width: '100%', maxWidth: 920, paddingHorizontal: pad, paddingTop: 28 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', columnGap: 18, marginBottom: 10 }}>
+            <Pressable accessibilityRole="link" onPress={() => navigate('/')} style={{ flexDirection: 'row', alignItems: 'center', columnGap: 6 }}>
+              <Text style={{ color: A.muted, fontFamily: fonts.main, fontSize: 15 }}>Lihat situs</Text>
+              <ArrowOut />
+            </Pressable>
+            <Pressable accessibilityRole="button" onPress={onLogout}>
+              <Text style={{ color: A.muted, fontFamily: fonts.main, fontSize: 15 }}>Keluar</Text>
+            </Pressable>
+          </View>
+
+          <Text
+            accessibilityRole="header"
+            style={{ color: A.text, fontFamily: fonts.main, fontSize: px(52), lineHeight: px(60), fontWeight: '700', letterSpacing: -1.5, marginBottom: px(44) }}
+          >
+            Dashboard
+          </Text>
+
+          <TabBar active={panel} onChange={setPanel} />
+
+          {status.text ? (
+            <Text style={{ color: status.kind === 'error' ? A.danger : A.ok, fontFamily: fonts.main, fontSize: 15, marginTop: 18 }}>
+              {status.text}
+            </Text>
+          ) : null}
+
+          <Panel draft={draft} set={set} replaceDraft={setDraft} onResetRemote={resetRemote} onLogout={onLogout} busy={busy} />
         </View>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-          <Button small label="Lihat situs" onPress={() => navigate('/')} />
-          <Button small label="Buang" onPress={discard} disabled={!dirty || busy} />
-          <Button small kind="primary" label={busy ? 'Menyimpan…' : 'Simpan'} onPress={save} disabled={!dirty || busy} />
-          <Button small kind="ghost" label="Keluar" onPress={onLogout} />
+      </ScrollView>
+
+      {dirty ? (
+        <View
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: '#222222',
+            borderTopWidth: 1,
+            borderTopColor: A.line,
+            paddingVertical: 14,
+            paddingHorizontal: pad,
+            alignItems: 'center',
+          }}
+        >
+          <View style={{ width: '100%', maxWidth: 842, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+            <Text style={{ color: A.warn, fontFamily: fonts.main, fontSize: 15 }}>Perubahan belum disimpan</Text>
+            <View style={{ flexDirection: 'row', columnGap: 8 }}>
+              <Button small label="Buang" onPress={discard} disabled={busy} />
+              <Button small kind="primary" label={busy ? 'Menyimpan…' : 'Simpan'} onPress={save} disabled={busy} />
+            </View>
+          </View>
         </View>
-      </View>
-      {status.text ? (
-        <Text style={{ color: status.kind === 'error' ? colors.danger : colors.ok, fontFamily: fonts.main, fontSize: 14, paddingHorizontal: 16, paddingTop: 10 }}>
-          {status.text}
-        </Text>
       ) : null}
-      <View style={{ flex: 1, flexDirection: isDesktop ? 'row' : 'column', maxWidth: 1100, width: '100%', alignSelf: 'center', paddingHorizontal: isDesktop ? 16 : 0 }}>
-        {nav}
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, paddingBottom: 96, maxWidth: 760 }} keyboardShouldPersistTaps="handled">
-          <Panel draft={draft} set={set} replaceDraft={setDraft} onResetRemote={resetRemote} busy={busy} />
-        </ScrollView>
-      </View>
     </SafeAreaView>
   );
 }

@@ -7,8 +7,8 @@ module.exports = defineConfig([
     ignores: ['dist/*', 'node_modules/*', '.expo/*', '.edgeone/*'],
   },
   {
-    // Edge Functions berjalan di runtime EdgeOne (Web API), bukan di browser/Node.
-    files: ['edge-functions/**/*.js', 'scripts/**/*.mjs'],
+    // Node Functions berjalan di Node.js (EdgeOne Pages), bukan di browser.
+    files: ['node-functions/**/*.js', 'scripts/**/*.mjs'],
     languageOptions: {
       globals: {
         Response: 'readonly',

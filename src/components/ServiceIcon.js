@@ -1,10 +1,40 @@
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
-export const ICON_NAMES = ['design', 'code', 'mobile', 'camera', 'star'];
+export const ICON_NAMES = ['bot', 'article', 'code', 'workflow', 'design', 'mobile', 'camera', 'star'];
 
 export default function ServiceIcon({ name, color, size = 20 }) {
   const props = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: color, strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' };
   switch (name) {
+    case 'bot':
+      return (
+        <Svg {...props}>
+          <Rect x="4" y="8" width="16" height="12" rx="3" />
+          <Path d="M12 8V5" />
+          <Circle cx="12" cy="4" r="1" />
+          <Circle cx="9" cy="13" r="1" />
+          <Circle cx="15" cy="13" r="1" />
+          <Path d="M9 17h6" />
+        </Svg>
+      );
+    case 'article':
+      return (
+        <Svg {...props}>
+          <Path d="M6 3h9l4 4v14H6z" />
+          <Path d="M14 3v5h5" />
+          <Path d="M9 13h7" />
+          <Path d="M9 17h5" />
+        </Svg>
+      );
+    case 'workflow':
+      return (
+        <Svg {...props}>
+          <Circle cx="6" cy="6" r="2" />
+          <Circle cx="6" cy="18" r="2" />
+          <Circle cx="18" cy="12" r="2" />
+          <Path d="M8 6c5 0 5 6 8 6" />
+          <Path d="M8 18c5 0 5-6 8-6" />
+        </Svg>
+      );
     case 'design':
       return (
         <Svg {...props}>

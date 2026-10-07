@@ -31,7 +31,7 @@ async function request(path, { method = 'GET', body, token, timeout = 8000 } = {
     }
     if (data === null) {
       // Mis. dev server mengembalikan HTML untuk /api/* karena edge function tidak jalan.
-      throw new Error('API tidak mengembalikan JSON. Jalankan dengan `npm run dev:edge`.');
+      throw new Error('API tidak mengembalikan JSON. Jalankan dengan `npm run dev:edge` atau deploy ke EdgeOne.');
     }
     return data;
   } finally {

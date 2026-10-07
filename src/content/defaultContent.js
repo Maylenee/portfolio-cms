@@ -68,15 +68,16 @@ export const defaultContent = {
   ],
   about: {
     paragraphs: [
-      "I'm Creative Director and UI/UX Designer from Sydney, Australia, working in web development and print media. I enjoy turning complex problems into simple, beautiful and intuitive designs.",
-      'My job is to build your website so that it is functional and user-friendly but at the same time attractive. Moreover, I add personal touch to your product and make sure that is eye-catching and easy to use. My aim is to bring across your message and identity in the most creative way. I created web design for many famous brand companies.',
+      'Exploring the frontier of AI agents — building autonomous systems that reason, learn, and act intelligently.',
+      "I'm endlessly curious about AI and love exploring what is possible with it. Every new model, tool, and technique feels like a new door to open, and I enjoy experimenting, breaking things, and learning by building.",
+      'I am just as enthusiastic about sharing the journey, so I write articles often, turning what I learn about AI agents into clear, useful notes for anyone getting started.',
     ],
     servicesTitle: "What i'm doing",
     services: [
-      { id: 'sv1', title: 'Web design', description: 'The most modern and high-quality design made at a professional level.' },
-      { id: 'sv2', title: 'Web development', description: 'High-quality development of sites at the professional level.' },
-      { id: 'sv3', title: 'Mobile apps', description: 'Professional development of applications for iOS and Android.' },
-      { id: 'sv4', title: 'Photography', description: 'I make high-quality photos of any category at a professional level.' },
+      { id: 'sv1', icon: 'bot', title: 'AI agents', description: 'Designing and building autonomous agents that reason, plan, and take action.' },
+      { id: 'sv2', icon: 'article', title: 'Written articles', description: 'Writing articles often about AI agents, what I am learning, and how I build.' },
+      { id: 'sv3', icon: 'code', title: 'LLM applications', description: 'Building applications powered by large language models, from prototype to production.' },
+      { id: 'sv4', icon: 'workflow', title: 'Automation', description: 'Connecting tools and workflows so agents can handle repetitive work.' },
     ],
   },
 };
