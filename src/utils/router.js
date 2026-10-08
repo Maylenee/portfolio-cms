@@ -3,18 +3,29 @@ import { useSyncExternalStore } from 'react';
 
 const isWeb = Platform.OS === 'web' && typeof window !== 'undefined';
 const listeners = new Set();
+const emit = () => listeners.forEach((l) => l());
 
-function parse(hash) {
-  const path = (hash || '').replace(/^#/, '') || '/';
-  return path.startsWith('/') ? path : `/${path}`;
+const readLocation = () => `${window.location.pathname}${window.location.search}`;
+
+// Link lama berbentuk /#/resume dialihkan ke /resume tanpa reload (agar link yang sudah dibagikan tetap jalan).
+function migrateHash() {
+  const { hash } = window.location;
+  if (hash.startsWith('#/')) window.history.replaceState(null, '', hash.slice(1));
 }
 
-let current = isWeb ? parse(window.location.hash) : '/';
+let current = '/';
 
 if (isWeb) {
+  migrateHash();
+  current = readLocation();
+  window.addEventListener('popstate', () => {
+    current = readLocation();
+    emit();
+  });
   window.addEventListener('hashchange', () => {
-    current = parse(window.location.hash);
-    listeners.forEach((l) => l());
+    migrateHash();
+    current = readLocation();
+    emit();
   });
 }
 
@@ -24,13 +35,16 @@ function subscribe(listener) {
 }
 
 export function navigate(path) {
+  const next = path.startsWith('/') ? path : `/${path}`;
   if (isWeb) {
-    window.location.hash = `#${path}`;
+    if (next !== current) window.history.pushState(null, '', next);
+    current = next;
+    emit();
     window.scrollTo(0, 0);
     return;
   }
-  current = path;
-  listeners.forEach((l) => l());
+  current = next;
+  emit();
 }
 
 export function useRoute() {
@@ -38,6 +52,6 @@ export function useRoute() {
 }
 
 export function pathToUrl(path) {
-  if (isWeb) return `${window.location.origin}${window.location.pathname}#${path}`;
+  if (isWeb) return `${window.location.origin}${path}`;
   return path;
 }
