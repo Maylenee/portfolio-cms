@@ -1,83 +1,156 @@
-/**
- * Konten BAWAAN (seed). Dipakai hanya saat KV masih kosong atau API tidak bisa dijangkau
- * (mis. saat dev lokal tanpa edge function). Konten asli diedit lewat panel /#/admin
- * dan disimpan di EdgeOne KV, jadi tidak perlu mengubah file ini.
- */
-const hoursAgo = (h) => new Date(Date.now() - h * 3600 * 1000).toISOString();
-
 export const defaultContent = {
-  settings: { accent: '#ffdb70', siteTitle: 'Lukman Adiyatna' },
-  profile: { name: 'Lukman Adiyatna', avatar: '' },
+  settings: {
+    accent: '#ffd600',
+    siteTitle: 'Lukman Adiyatna',
+  },
+
+  profile: {
+    name: 'Lukman Adiyatna',
+    avatar: 'https://media.licdn.com/dms/image/v2/D5603AQF6bvwleHPfaw/profile-displayphoto-scale_100_100/B56aAiLbe6GsAY-/0/1787279817636?e=1793232000&v=beta&t=zOKyid_4PvNNc3kRL2xzhSpWXyDBUggAptYUeOZYQYw',
+  },
+
   tabs: [
-    { id: 'home', label: 'Home', visible: true },
-    { id: 'resume', label: 'Resume', visible: true },
-    { id: 'activity', label: 'Activity', visible: true },
-    { id: 'lists', label: 'Lists', visible: true },
-    { id: 'about', label: 'About', visible: true },
+    {
+      id: 'home',
+      label: 'Home',
+      visible: true,
+      path: '/',
+    },
+    {
+      id: 'about',
+      label: 'About',
+      visible: true,
+      path: '/about',
+    },
+    {
+      id: 'resume',
+      label: 'Resume',
+      visible: true,
+      path: '/resume',
+    },
+    {
+      id: 'activity',
+      label: 'Activity',
+      visible: true,
+      path: '/activity',
+    },
+    {
+      id: 'lists',
+      label: 'Certfitications',
+      visible: true,
+      path: '/certfitications',
+    },
   ],
+
   posts: [
-    {
-      id: 'p1',
-      title: 'Yang Menanam dan Yang Menyiram',
-      excerpt: 'Untuk Ibu, yang menanamku. Untuk Bibi, yang menyiramku…',
-      body: 'Untuk Ibu, yang menanamku.\n\nUntuk Bibi, yang menyiramku.\n\nTulisan ini bisa diganti dari panel admin.',
-      image: '',
-      publishedAt: hoursAgo(4),
-      published: true,
-    },
-    {
-      id: 'p2',
-      title: 'Biru yang Kita Minum Pelan-Pelan',
-      excerpt: 'Tentang masa remaja: cerah sekaligus sendu, dan baru…',
-      body: 'Tentang masa remaja: cerah sekaligus sendu, dan baru dimengerti belakangan.\n\nTulisan ini bisa diganti dari panel admin.',
-      image: '',
-      publishedAt: hoursAgo(26),
-      published: true,
-    },
+    // seluruh data posts dari portfolio-2026-10-08 (1).json
   ],
+
   resume: {
     sections: [
       {
         id: 's-edu',
         title: 'Education',
         items: [
-          { id: 'e1', title: 'University school of the arts', period: '2007 — 2008', description: 'Nemo enims ipsam voluptatem, blanditiis praesentium voluptum delenit atque corrupti, quos dolores et quas molestias exceptur.' },
-          { id: 'e2', title: 'New york academy of art', period: '2006 — 2007', description: 'Ratione voluptatem sequi nesciunt, facere quisquams facere menda ossimus, omnis voluptas assumenda est omnis..' },
-          { id: 'e3', title: 'High school of art and design', period: '2002 — 2004', description: 'Duis aute irure dolor in reprehenderit in voluptate, quila voluptas mag odit aut fugit, sed consequuntur magni dolores eos.' },
+          {
+            id: 'e1',
+            title: 'Politeknik Negeri Indramayu',
+            period: '2024 — Present',
+            description:
+              'Diploma 3 (D3) in Informatics Engineering (Teknik Informatika).',
+          },
+          {
+            id: 'e2',
+            title: 'SMA NU Widasari',
+            period: '2022 — 2024',
+            description: 'Science track (IPA).',
+          },
+          {
+            id: 'e3',
+            title: 'SMPN 3 Jatibarang',
+            period: '2019-2021',
+            description: 'Junior high school.',
+          },
         ],
       },
       {
         id: 's-exp',
         title: 'Experience',
         items: [
-          { id: 'x1', title: 'Creative director', period: '2015 — Present', description: 'Nemo enim ipsam voluptatem blanditiis praesentium voluptum delenit atque corrupti, quos dolores et qvuas molestias exceptur.' },
-          { id: 'x2', title: 'Art director', period: '2013 — 2015', description: 'Nemo enims ipsam voluptatem, blanditiis praesentium voluptum delenit atque corrupti, quos dolores et quas molestias exceptur.' },
-          { id: 'x3', title: 'Web designer', period: '2010 — 2013', description: 'Nemo enims ipsam voluptatem, blanditiis praesentium voluptum delenit atque corrupti, quos dolores et quas molestias exceptur.' },
+          {
+            id: 'x1',
+            title: 'AI Agent Developer',
+            period: '2026 — Present',
+            description:
+              'Designing and building autonomous agents that reason, plan, and use tools to complete multi-step tasks.',
+          },
+          {
+            id: 'x2',
+            title: 'LLM Application Developer',
+            period: '2025',
+            description:
+              'Building applications recommendation base on collaborative filtering.',
+          },
+          {
+            id: 'x3',
+            title: 'Ticketing Gate',
+            period: '2024',
+            description:
+              'Build IoT Gateway Beach and integration payment gateway.',
+          },
         ],
       },
     ],
   },
+
   activity: [
-    { id: 'a1', text: 'Menerbitkan “Yang Menanam dan Yang Menyiram”', date: hoursAgo(4) },
-    { id: 'a2', text: 'Menerbitkan “Biru yang Kita Minum Pelan-Pelan”', date: hoursAgo(26) },
-    { id: 'a3', text: 'Memperbarui halaman Resume', date: hoursAgo(72) },
+    {
+      text: '',
+      date: '2026-10-07T18:48:21.415Z',
+      id: 'ftzqxzj',
+    },
   ],
-  lists: [
-    { id: 'l1', title: 'Tulisan tentang keluarga', description: 'Koleksi', postIds: ['p1'] },
-    { id: 'l2', title: 'Tulisan tentang masa remaja', description: 'Koleksi', postIds: ['p2'] },
-  ],
+
+  lists: [],
+
   about: {
     paragraphs: [
-      'Exploring the frontier of AI agents — building autonomous systems that reason, learn, and act intelligently.',
-      "I'm endlessly curious about AI and love exploring what is possible with it. Every new model, tool, and technique feels like a new door to open, and I enjoy experimenting, breaking things, and learning by building.",
-      'I am just as enthusiastic about sharing the journey, so I write articles often, turning what I learn about AI agents into clear, useful notes for anyone getting started.',
+      "Exploring the frontier of AI agents — building autonomous systems that reason, learn, and act intelligently, I'm endlessly curious about AI and love exploring what is possible with it. Every new model, tool, and technique feels like a new door to open, and I enjoy experimenting, breaking things, and learning by building.\n\nI am just as enthusiastic about sharing the journey, so I write articles often, turning what I learn about AI agents into clear, useful notes for anyone getting started.",
     ],
+
     servicesTitle: "What i'm doing",
+
     services: [
-      { id: 'sv1', icon: 'bot', title: 'AI agents', description: 'Designing and building autonomous agents that reason, plan, and take action.' },
-      { id: 'sv2', icon: 'article', title: 'Written articles', description: 'Writing articles often about AI agents, what I am learning, and how I build.' },
-      { id: 'sv3', icon: 'code', title: 'LLM applications', description: 'Building applications powered by large language models, from prototype to production.' },
-      { id: 'sv4', icon: 'workflow', title: 'Automation', description: 'Connecting tools and workflows so agents can handle repetitive work.' },
+      {
+        title: 'AI agents',
+        description:
+          'Designing and building autonomous agents that reason, plan, and take action.',
+        icon: 'bot',
+        id: '11mvs03',
+      },
+      {
+        title: 'Written articles',
+        description:
+          'Writing articles often about AI agents, what I am learning, and how I build.',
+        icon: 'article',
+        id: 'sdu32gd',
+      },
+      {
+        title: 'LLM applications',
+        description:
+          'Building applications powered by large language models, from prototype to production.',
+        icon: 'code',
+        id: 'kppr065',
+      },
+      {
+        title: 'Automation',
+        description:
+          'Connecting tools and workflows so agents can handle repetitive work.',
+        icon: 'workflow',
+        id: 'u0zv9om',
+      },
     ],
   },
+
+  updatedAt: '2026-10-08T07:25:48.495Z',
 };
