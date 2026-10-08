@@ -7,6 +7,7 @@ import { fonts, useLayout } from '../theme';
 import { confirmAction } from '../utils/confirm';
 import { navigate } from '../utils/router';
 import LoginForm from './LoginForm';
+import Toast from './Toast';
 import {
   AboutPanel,
   DataPanel,
@@ -169,6 +170,8 @@ function Editor({ token, content, setContent, onUnauthorized, onLogout }) {
   const [panel, setPanel] = useState('profile');
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState({ kind: '', text: '' });
+  const [toast, setToast] = useState(null);
+  const notify = useCallback((text) => setToast({ id: Date.now(), text }), []);
 
   const dirty = useMemo(() => JSON.stringify(draft) !== JSON.stringify(content), [draft, content]);
   const set = useCallback((path, value) => setDraft((d) => setIn(d, path, value)), []);
@@ -200,7 +203,7 @@ function Editor({ token, content, setContent, onUnauthorized, onLogout }) {
       const res = await api.saveContent(draft, token);
       setContent(res.content);
       setDraft(res.content);
-      setStatus({ kind: 'ok', text: 'Tersimpan. Situs sudah diperbarui.' });
+      notify('Tersimpan. Situs sudah diperbarui.');
     } catch (e) {
       handleError(e);
     } finally {
@@ -222,7 +225,8 @@ function Editor({ token, content, setContent, onUnauthorized, onLogout }) {
         setContent(defaultContent);
         setDraft(defaultContent);
       }
-      setStatus({ kind: 'ok', text: 'Konten dikembalikan ke bawaan.' });
+      setStatus({ kind: '', text: '' });
+      notify('Konten dikembalikan ke bawaan.');
     } catch (e) {
       handleError(e);
     } finally {
@@ -273,9 +277,11 @@ function Editor({ token, content, setContent, onUnauthorized, onLogout }) {
             </Text>
           ) : null}
 
-          <Panel draft={draft} set={set} replaceDraft={setDraft} onResetRemote={resetRemote} onLogout={onLogout} busy={busy} />
+          <Panel draft={draft} set={set} replaceDraft={setDraft} onResetRemote={resetRemote} onLogout={onLogout} busy={busy} notify={notify} />
         </View>
       </ScrollView>
+
+      {toast ? <Toast key={toast.id} text={toast.text} onDone={() => setToast(null)} /> : null}
 
       {dirty ? (
         <View

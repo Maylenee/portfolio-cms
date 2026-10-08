@@ -8,7 +8,8 @@ import DotsMenu from './DotsMenu';
 import Thumb from './Thumb';
 
 export default function PostCard({ post, profile }) {
-  const { px } = useLayout();
+  const { px, isTablet } = useLayout();
+  const thumbW = isTablet ? 150 : 108; // thumbnail lebih besar di layar lebar
   const path = `/post/${post.id}`;
   // Sampul: pakai thumbnail bila diisi, kalau tidak ambil gambar pertama dari galeri.
   const cover = post.image || (post.images || []).find((i) => i && i.src)?.src || '';
@@ -22,22 +23,22 @@ export default function PostCard({ post, profile }) {
             {profile.name} · {relativeTime(post.publishedAt)}
           </Text>
         </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', columnGap: px(36), marginTop: px(24) }}>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', columnGap: px(28), marginTop: px(20) }}>
           <View style={{ flex: 1 }}>
-            <Text style={{ color: colors.text, fontFamily: fonts.main, fontSize: px(24), lineHeight: px(31), fontWeight: '700', letterSpacing: -0.6 }}>
+            <Text style={{ color: colors.text, fontFamily: fonts.main, fontSize: px(20), lineHeight: px(26), fontWeight: '700', letterSpacing: -0.4 }}>
               {post.title}
             </Text>
             {post.excerpt ? (
               <Text
                 numberOfLines={2}
-                style={{ color: colors.text, fontFamily: fonts.main, fontSize: px(19), lineHeight: px(26), letterSpacing: -0.19, marginTop: px(15) }}
+                style={{ color: colors.muted, fontFamily: fonts.main, fontSize: px(16), lineHeight: px(23), letterSpacing: -0.1, marginTop: px(8) }}
               >
                 {post.excerpt}
               </Text>
             ) : null}
           </View>
-          <View style={{ marginTop: 3 }}>
-            <Thumb uri={cover} width={px(104)} height={px(69)} />
+          <View style={{ marginTop: px(4) }}>
+            <Thumb uri={cover} width={px(thumbW)} height={px(thumbW * 2 / 3)} />
           </View>
         </View>
       </Pressable>
@@ -46,4 +47,4 @@ export default function PostCard({ post, profile }) {
       </View>
     </View>
   );
-} 
+}

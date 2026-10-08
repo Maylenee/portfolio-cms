@@ -298,7 +298,7 @@ export function AboutPanel({ draft, set }) {
   );
 }
 
-export function DataPanel({ draft, replaceDraft, onResetRemote, onLogout, busy }) {
+export function DataPanel({ draft, replaceDraft, onResetRemote, onLogout, busy, notify }) {
   const [text, setText] = useState('');
   const [msg, setMsg] = useState('');
   const kb = Math.round(JSON.stringify(draft).length / 1024);
@@ -321,7 +321,8 @@ export function DataPanel({ draft, replaceDraft, onResetRemote, onLogout, busy }
       const parsed = JSON.parse(text);
       if (!parsed || typeof parsed !== 'object' || !parsed.profile) throw new Error('Struktur JSON tidak dikenali.');
       replaceDraft(normalizeContent(parsed));
-      setMsg('Diimpor ke draft. Tekan Simpan untuk menerapkan.');
+      setMsg('');
+      notify('Diimpor ke draft. Tekan Simpan untuk menerapkan.');
     } catch (e) {
       setMsg(`Gagal impor: ${e.message}`);
     }
