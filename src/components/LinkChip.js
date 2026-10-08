@@ -24,6 +24,7 @@ export default function LinkChip({ name, url }) {
         borderRadius: 999,
         paddingVertical: 6,
         paddingHorizontal: 12,
+        maxWidth: '100%',
       }}
     >
       {icon && !broken ? (
@@ -33,12 +34,14 @@ export default function LinkChip({ name, url }) {
           <Text style={{ color: colors.text, fontFamily: fonts.main, fontSize: 10, fontWeight: '700' }}>{label.charAt(0).toUpperCase()}</Text>
         </View>
       )}
-      <Text style={{ color: colors.text, fontFamily: fonts.main, fontSize: px(15) }}>{label}</Text>
+      <Text numberOfLines={1} ellipsizeMode="tail" style={{ color: colors.text, fontFamily: fonts.main, fontSize: px(15), flexShrink: 1 }}>
+        {label}
+      </Text>
     </View>
   );
 
   return href ? (
-    <Pressable accessibilityRole="link" accessibilityLabel={label} onPress={() => openUrl(href)}>
+    <Pressable accessibilityRole="link" accessibilityLabel={label} onPress={() => openUrl(href)} style={{ maxWidth: '100%' }}>
       {body}
     </Pressable>
   ) : (

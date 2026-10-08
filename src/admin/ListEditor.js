@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { fonts } from '../theme';
 import { uid } from '../utils/time';
+import MarkdownEditor from './MarkdownEditor';
 import { A, Button, DateField, Field, ImageField, SettingRow, Toggle } from './ui';
 
 function move(list, from, to) {
@@ -43,7 +44,9 @@ function renderField(spec, item, setItem, extra) {
   const onChange = (v) => setItem({ ...item, [spec.key]: v });
   switch (spec.type) {
     case 'multiline':
-      return <Field key={spec.key} label={spec.label} value={value} onChange={onChange} multiline />;
+      return <Field key={spec.key} label={spec.label} value={value} onChange={onChange} multiline hint={spec.hint} placeholder={spec.placeholder} minHeight={spec.minHeight} />;
+    case 'markdown':
+      return <MarkdownEditor key={spec.key} label={spec.label} value={value} onChange={onChange} placeholder={spec.placeholder} hint={spec.hint} minHeight={spec.minHeight} />;
     case 'image':
       return <ImageField key={spec.key} label={spec.label} value={value} onChange={onChange} maxSize={spec.maxSize} />;
     case 'date':
@@ -90,6 +93,8 @@ function renderField(spec, item, setItem, extra) {
             fields={spec.fields}
             makeItem={spec.makeItem}
             itemTitle={spec.itemTitle}
+            itemSubtitle={spec.itemSubtitle}
+            itemRight={spec.itemRight}
             addLabel={spec.addLabel}
             extra={extra}
             nested

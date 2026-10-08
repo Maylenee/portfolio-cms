@@ -6,6 +6,7 @@ import { DEFAULT_LAYOUT, LAYOUTS } from '../components/PostGallery';
 import { ICON_NAMES } from '../components/ServiceIcon';
 import { normalizeContent } from '../hooks/useContent';
 import { fonts } from '../theme';
+import { hostOf } from '../utils/links';
 import { relativeTime } from '../utils/time';
 import ListEditor from './ListEditor';
 import { A, Button, Field, FieldRow, ImageField, Section, SettingRow } from './ui';
@@ -120,7 +121,7 @@ export function PostsPanel({ draft, set }) {
           addLabel="Kegiatan"
           makeItem={() => ({
             title: 'Judul baru',
-            link: '',
+            links: [],
             showLink: true,
             excerpt: '',
             body: '',
@@ -140,7 +141,7 @@ export function PostsPanel({ draft, set }) {
           fields={[
             { key: 'title', label: 'Judul' },
             { key: 'excerpt', label: 'Kutipan (tampil di kartu)', type: 'multiline' },
-            { key: 'body', label: 'Isi lengkap (pisahkan paragraf dengan baris kosong)', type: 'multiline' },
+            { key: 'body', label: 'Isi lengkap (Markdown)', type: 'markdown' },
             { key: 'image', label: 'Gambar sampul (opsional, kosong = gambar pertama galeri)', type: 'image' },
             {
               key: 'images',
@@ -154,7 +155,20 @@ export function PostsPanel({ draft, set }) {
             },
             { key: 'layout', label: 'Kolase galeri', type: 'choice', options: LAYOUTS },
             { key: 'showLink', label: 'Tampilkan link', type: 'toggle' },
-            { key: 'link', label: 'Link (klik judul / tampil di bawah)', placeholder: 'https://' },
+            {
+              key: 'links',
+              type: 'list',
+              label: 'Link (tampil di bawah, bisa lebih dari satu)',
+              addLabel: 'Link',
+              makeItem: () => ({ label: '', url: '' }),
+              itemTitle: (it) => it.label || hostOf(it.url) || '(kosong)',
+              itemSubtitle: (it) => (it.label ? it.url : ''),
+              itemRight: () => 'Ubah',
+              fields: [
+                { key: 'label', label: 'Nama link (opsional, mis. Artikel Medium)', placeholder: 'Artikel Medium' },
+                { key: 'url', label: 'URL', placeholder: 'https://' },
+              ],
+            },
             logoList('tools', 'Tools (logo)', 'Logo'),
             logoList('stack', 'Stack (logo)', 'Logo'),
             { key: 'showClient', label: 'Tampilkan client', type: 'toggle' },

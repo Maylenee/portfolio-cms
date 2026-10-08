@@ -163,7 +163,7 @@ export function Button({ label, onPress, kind = 'default', disabled, small }) {
   );
 }
 
-export function Field({ label, value, onChange, multiline, placeholder, hint, secure, onSubmit }) {
+export function Field({ label, value, onChange, multiline, placeholder, hint, secure, onSubmit, minHeight }) {
   return (
     <View style={{ marginBottom: 14 }}>
       {label ? <Text style={{ ...base, fontSize: 14, color: A.muted, marginBottom: 6 }}>{label}</Text> : null}
@@ -187,7 +187,7 @@ export function Field({ label, value, onChange, multiline, placeholder, hint, se
           borderRadius: 8,
           paddingVertical: 11,
           paddingHorizontal: 13,
-          minHeight: multiline ? 110 : undefined,
+          minHeight: multiline ? minHeight || 110 : undefined,
           textAlignVertical: multiline ? 'top' : 'center',
         }}
       />

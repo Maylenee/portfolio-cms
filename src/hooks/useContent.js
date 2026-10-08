@@ -7,6 +7,14 @@ import { getItem, setItem } from '../utils/storage';
 const CACHE_KEY = 'portfolio.content.v1';
 const ContentContext = createContext(null);
 
+// Data lama punya satu `link`; sekarang `links` (banyak). Migrasi otomatis agar tidak hilang.
+function normalizePost(p) {
+  if (!p || typeof p !== 'object') return p;
+  const { link, ...rest } = p;
+  const links = Array.isArray(p.links) ? p.links : link ? [{ label: '', url: String(link) }] : [];
+  return { ...rest, links: links.map((l, i) => ({ ...l, id: (l && l.id) || `link-${i}` })) };
+}
+
 /** Gabungkan dengan bawaan agar field baru tidak membuat tampilan error pada data lama. */
 export function normalizeContent(raw) {
   const c = raw && typeof raw === 'object' ? raw : {};
@@ -16,7 +24,7 @@ export function normalizeContent(raw) {
     settings: { ...defaultContent.settings, ...(c.settings || {}) },
     profile: { ...defaultContent.profile, ...(c.profile || {}) },
     tabs: Array.isArray(c.tabs) && c.tabs.length ? c.tabs : defaultContent.tabs,
-    posts: Array.isArray(c.posts) ? c.posts : [],
+    posts: Array.isArray(c.posts) ? c.posts.map(normalizePost) : [],
     activity: Array.isArray(c.activity) ? c.activity : [],
     lists: Array.isArray(c.lists) ? c.lists : [],
     resume: { sections: Array.isArray(c.resume && c.resume.sections) ? c.resume.sections : [] },
