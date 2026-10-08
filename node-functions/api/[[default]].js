@@ -165,6 +165,22 @@ async function readJson(request) {
   }
 }
 
+/* ------------------------------ slimming ------------------------------ */
+
+// `image` (sampul) yang sama dengan gambar pertama galeri tidak perlu disimpan dua kali:
+// klien sudah memakai gambar pertama galeri sebagai sampul bila `image` kosong.
+function slimContent(c) {
+  if (!c || !Array.isArray(c.posts)) return c;
+  return {
+    ...c,
+    posts: c.posts.map((p) => {
+      if (!p || !p.image || !Array.isArray(p.images)) return p;
+      const first = p.images.find((i) => i && i.src);
+      return first && first.src === p.image ? { ...p, image: '' } : p;
+    }),
+  };
+}
+
 /* ----------------------------- validation ----------------------------- */
 
 const isStr = (v) => typeof v === 'string';
@@ -201,7 +217,7 @@ async function handleGet(context) {
   if (route === 'content') {
     try {
       const content = await getBlobStore().get(CONTENT_KEY, { type: 'json' });
-      return json({ content: content || null, blob: true });
+      return json({ content: content ? slimContent(content) : null, blob: true });
     } catch {
       // Blob belum siap (mis. dev lokal tanpa link): klien memakai konten bawaan.
       return json({ content: null, blob: false });
@@ -259,7 +275,7 @@ async function handlePut(context) {
   const problem = validateContent(content);
   if (problem) return json({ error: problem }, 422);
 
-  const saved = { ...content, updatedAt: new Date().toISOString() };
+  const saved = { ...slimContent(content), updatedAt: new Date().toISOString() };
   try {
     await getBlobStore().setJSON(CONTENT_KEY, saved);
   } catch (error) {

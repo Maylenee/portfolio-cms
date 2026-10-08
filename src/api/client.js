@@ -40,7 +40,15 @@ async function request(path, { method = 'GET', body, token, timeout = 8000 } = {
 }
 
 export const api = {
-  getContent: () => request('/api/content'),
+  // Konten bisa besar (gambar base64) -> beri waktu lebih lama dari default 8 detik, dan coba ulang sekali.
+  getContent: async () => {
+    try {
+      return await request('/api/content', { timeout: 45000 });
+    } catch (e) {
+      if (e && e.status && e.status < 500) throw e; // 4xx: jangan diulang
+      return request('/api/content', { timeout: 45000 });
+    }
+  },
   login: (password) => request('/api/login', { method: 'POST', body: { password } }),
   checkSession: (token) => request('/api/session', { token }),
   saveContent: (content, token) => request('/api/content', { method: 'PUT', body: content, token, timeout: 20000 }),

@@ -52,35 +52,41 @@ export function ContentProvider({ children }) {
     setItem(CACHE_KEY, JSON.stringify(normalized));
   }, []);
 
+  const load = useCallback(async () => {
+    const res = await api.getContent();
+    apply(res.content || defaultContent);
+    setStatus('ready');
+  }, [apply]);
+
   const reload = useCallback(async () => {
     try {
-      const res = await api.getContent();
-      apply(res.content || defaultContent);
-      setStatus('ready');
+      await load();
     } catch {
       setContentState((prev) => prev || normalizeContent(defaultContent));
       setStatus((prev) => (prev === 'ready' ? prev : 'offline'));
     }
-  }, [apply]);
+  }, [load]);
 
+  // Muat saat dibuka; bila gagal, tampilkan konten bawaan lalu coba lagi otomatis (maks 4x, jeda bertambah).
   useEffect(() => {
     let cancelled = false;
-    api
-      .getContent()
-      .then((res) => {
-        if (cancelled) return;
-        apply(res.content || defaultContent);
-        setStatus('ready');
-      })
-      .catch(() => {
+    let timer = null;
+    const attempt = async (n) => {
+      try {
+        await load();
+      } catch {
         if (cancelled) return;
         setContentState((prev) => prev || normalizeContent(defaultContent));
         setStatus((prev) => (prev === 'ready' ? prev : 'offline'));
-      });
+        if (n < 4) timer = setTimeout(() => attempt(n + 1), 4000 * (n + 1));
+      }
+    };
+    attempt(0);
     return () => {
       cancelled = true;
+      if (timer) clearTimeout(timer);
     };
-  }, [apply]);
+  }, [load]);
 
   const value = useMemo(() => ({ content, status, setContent: apply, reload }), [content, status, apply, reload]);
   return createElement(ContentContext.Provider, { value }, children);
