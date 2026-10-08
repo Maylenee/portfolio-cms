@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { fonts } from '../theme';
+import { parseLogos } from '../utils/logos';
 import { uid } from '../utils/time';
 import MarkdownEditor from './MarkdownEditor';
 import { A, Button, DateField, Field, ImageField, SettingRow, Toggle } from './ui';
@@ -96,6 +97,7 @@ function renderField(spec, item, setItem, extra) {
             itemSubtitle={spec.itemSubtitle}
             itemRight={spec.itemRight}
             addLabel={spec.addLabel}
+            bulk={spec.bulk}
             extra={extra}
             nested
           />
@@ -121,16 +123,36 @@ export default function ListEditor({
   itemRight,
   addLabel = 'Tambah',
   fixed,
+  bulk,
   extra = {},
   nested,
 }) {
   const [open, setOpen] = useState({});
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkText, setBulkText] = useState('');
+  const [bulkMsg, setBulkMsg] = useState('');
   const toggleOpen = (id) => setOpen((o) => ({ ...o, [id]: !o[id] }));
 
   const add = () => {
     const item = { ...makeItem(), id: uid() };
     onChange([item, ...items]);
     setOpen((o) => ({ ...o, [item.id]: true }));
+  };
+  // Tempel banyak: tiap baris/koma jadi satu item baru (hanya untuk daftar logo).
+  const applyBulk = (raw = bulkText) => {
+    const { urls, invalid, duplicates } = parseLogos(raw, items.map((it) => it[bulk.key]));
+    if (urls.length) {
+      const added = urls.map((url) => ({ ...makeItem(), [bulk.key]: url, id: uid() }));
+      onChange([...added, ...items]);
+    }
+    const parts = [];
+    if (urls.length) parts.push(`${urls.length} logo ditambahkan`);
+    if (duplicates) parts.push(`${duplicates} duplikat dilewati`);
+    if (invalid.length) parts.push(`tidak dikenali: ${invalid.join(', ')}`);
+    setBulkMsg(parts.join(' · ') || 'Tidak ada yang bisa ditambahkan.');
+    // Yang gagal dibiarkan di kotak supaya bisa diperbaiki; yang berhasil dihapus.
+    setBulkText(invalid.join('\n'));
+    if (!invalid.length) setBulkOpen(false);
   };
   const remove = (index) => onChange(items.filter((_, i) => i !== index));
   const duplicate = (index) => {
@@ -148,6 +170,24 @@ export default function ListEditor({
       {!fixed ? (
         <SettingRow title={`Tambah ${addLabel.toLowerCase()}`} right="+" onPress={add} />
       ) : null}
+      {bulk && !fixed ? (
+        <SettingRow title="Tempel banyak" description="Satu baris atau koma = satu logo" right={bulkOpen ? undefined : '+'} expanded={bulkOpen} onPress={() => { setBulkOpen((o) => !o); setBulkMsg(''); }}>
+          <Field
+            label="Daftar logo"
+            value={bulkText}
+            onChange={setBulkText}
+            multiline
+            minHeight={120}
+            placeholder={'laravel, flutter, mysql\nhttps://cdn.simpleicons.org/figma\nVSCode=https://…/vscode.svg'}
+            hint="Boleh URL, NAMA=URL (gaya .env), atau nama saja. Baris berawalan # dilewati."
+          />
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+            <Button small kind="primary" label="Tambahkan" disabled={!bulkText.trim()} onPress={() => applyBulk()} />
+            <Button small label="Batal" onPress={() => { setBulkOpen(false); setBulkText(''); setBulkMsg(''); }} />
+          </View>
+        </SettingRow>
+      ) : null}
+      {bulkMsg ? <Text style={{ color: A.muted, fontFamily: fonts.main, fontSize: 13, paddingVertical: 6 }}>{bulkMsg}</Text> : null}
       {items.length === 0 ? <Text style={{ color: A.faint, fontFamily: fonts.main, fontSize: 15, paddingVertical: 12 }}>Belum ada data.</Text> : null}
       {items.map((item, index) => {
         const expanded = Boolean(open[item.id]);

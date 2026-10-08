@@ -104,6 +104,7 @@ const logoList = (key, label, addLabel) => ({
   type: 'list',
   label,
   addLabel,
+  bulk: { key: 'logo' },
   makeItem: () => ({ logo: '' }),
   itemTitle: (it) => (it.logo ? 'Logo' : '(kosong)'),
   itemRight: () => 'Ubah',
