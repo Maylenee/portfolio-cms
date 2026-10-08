@@ -1,5 +1,6 @@
 import { Text, View } from 'react-native';
 
+import Markdown from '../components/Markdown';
 import ServiceIcon, { ICON_NAMES } from '../components/ServiceIcon';
 import { colors, fonts, useLayout } from '../theme';
 
@@ -30,35 +31,12 @@ export default function AboutScreen({ content }) {
 
   return (
     <View>
-      {lead ? (
-        <Text
-          style={{
-            color: colors.text,
-            fontFamily: fonts.main,
-            fontSize: px(22),
-            lineHeight: px(32),
-            fontWeight: '500',
-            letterSpacing: -0.4,
-          }}
-        >
-          {lead}
-        </Text>
-      ) : null}
+      {lead ? <Markdown source={lead} size={22} /> : null}
 
       {rest.map((text, i) => (
-        <Text
-          key={i}
-          style={{
-            color: '#bdbdbd',
-            fontFamily: fonts.main,
-            fontSize: px(17),
-            lineHeight: px(27),
-            letterSpacing: -0.1,
-            marginTop: 18,
-          }}
-        >
-          {text}
-        </Text>
+        <View key={i} style={{ marginTop: 18 }}>
+          <Markdown source={text} size={17} color="#bdbdbd" />
+        </View>
       ))}
 
       {services.length > 0 ? (

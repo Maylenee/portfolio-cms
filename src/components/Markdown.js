@@ -324,10 +324,10 @@ function Blocks({ blocks, body, px }) {
   });
 }
 
-export default function Markdown({ source, size = 19 }) {
+export default function Markdown({ source, size = 19, color }) {
   const { px } = useLayout();
   const blocks = parseBlocks(source);
-  const body = { color: colors.text, fontFamily: fonts.main, fontSize: px(size), lineHeight: px(size * 1.58), letterSpacing: -0.19 };
+  const body = { color: color || colors.text, fontFamily: fonts.main, fontSize: px(size), lineHeight: px(size * 1.58), letterSpacing: -0.19 };
 
   return (
     <View>

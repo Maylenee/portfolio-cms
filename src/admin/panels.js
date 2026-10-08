@@ -9,6 +9,7 @@ import { fonts } from '../theme';
 import { hostOf } from '../utils/links';
 import { relativeTime } from '../utils/time';
 import ListEditor from './ListEditor';
+import MarkdownEditor from './MarkdownEditor';
 import { A, Button, Field, FieldRow, ImageField, Section, SettingRow } from './ui';
 
 const hint = { color: A.muted, fontFamily: fonts.main, fontSize: 15, lineHeight: 22 };
@@ -266,12 +267,12 @@ export function AboutPanel({ draft, set }) {
           <SettingRow
             key={i}
             title={clip(p, 80) || '(kosong)'}
-            description={i === 0 ? 'Paragraf pertama tampil besar sebagai pembuka.' : undefined}
+            description={i === 0 ? 'Blok pertama tampil besar sebagai pembuka. Mendukung Markdown.' : 'Mendukung Markdown.'}
             right={open[i] ? undefined : 'Ubah'}
             expanded={Boolean(open[i])}
             onPress={() => setOpen((o) => ({ ...o, [i]: !o[i] }))}
           >
-            <Field value={p} onChange={(v) => setPara(i, v)} multiline />
+            <MarkdownEditor value={p} onChange={(v) => setPara(i, v)} minHeight={220} placeholder="Tulis bio… (mendukung **tebal**, *miring*, [tautan](url), daftar, judul)" />
             <Button small kind="danger" label="Hapus" onPress={() => set(['about', 'paragraphs'], paragraphs.filter((_, idx) => idx !== i))} />
           </SettingRow>
         ))}
