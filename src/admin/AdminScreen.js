@@ -9,7 +9,6 @@ import { navigate } from '../utils/router';
 import LoginForm from './LoginForm';
 import {
   AboutPanel,
-  ActivityPanel,
   DataPanel,
   ListsPanel,
   PostsPanel,
@@ -25,23 +24,45 @@ import { A, ArrowOut, Button, Chevron } from './ui';
 const PANELS = [
   { id: 'profile', label: 'Profile', Component: ProfilePanel },
   { id: 'tabs', label: 'Navigation', Component: TabsPanel },
-  { id: 'posts', label: 'Stories', Component: PostsPanel },
+  { id: 'posts', label: 'Activity', navId: 'activity', Component: PostsPanel },
   { id: 'resume', label: 'Resume', navId: 'resume', Component: ResumePanel },
-  { id: 'activity', label: 'Activity', navId: 'activity', Component: ActivityPanel },
   { id: 'lists', label: 'Lists', navId: 'lists', Component: ListsPanel },
   { id: 'about', label: 'About', navId: 'about', Component: AboutPanel },
   { id: 'data', label: 'Data', Component: DataPanel },
 ];
 
-// Ambil peta { navId: label } dari draft. Sesuaikan bila struktur datanya berbeda.
-function getNavLabels(draft) {
+// Ambil daftar tab dari draft (urutan sama persis dengan di pengaturan Navigation).
+// Sesuaikan bila struktur datanya berbeda.
+function getNavList(draft) {
   const list = draft?.tabs || draft?.navigation || draft?.nav;
   const items = Array.isArray(list) ? list : Array.isArray(list?.items) ? list.items : [];
-  const out = {};
-  items.forEach((t) => {
-    if (t && t.id && typeof t.label === 'string' && t.label.trim()) out[t.id] = t.label;
+  return items.filter((t) => t && t.id);
+}
+
+// Terapkan label dan urutan dari Navigation ke panel dashboard.
+// Panel tanpa navId (Profile, Navigation, Data) tetap di posisinya;
+// panel ber-navId saling bertukar tempat mengikuti urutan tab di Navigation.
+function buildPanels(draft) {
+  const nav = getNavList(draft);
+  const labels = {};
+  const order = {};
+  nav.forEach((t, i) => {
+    order[t.id] = i;
+    if (typeof t.label === 'string' && t.label.trim()) labels[t.id] = t.label;
   });
-  return out;
+
+  const withLabels = PANELS.map((p) => ({ ...p, label: (p.navId && labels[p.navId]) || p.label }));
+
+  const slots = [];
+  const synced = [];
+  withLabels.forEach((p, i) => {
+    if (p.navId) { slots.push(i); synced.push(p); }
+  });
+  synced.sort((a, b) => (order[a.navId] ?? 999) - (order[b.navId] ?? 999)); // sort stabil
+
+  const result = [...withLabels];
+  slots.forEach((slot, i) => { result[slot] = synced[i]; });
+  return result;
 }
 
 function setIn(obj, path, value) {
@@ -152,14 +173,8 @@ function Editor({ token, content, setContent, onUnauthorized, onLogout }) {
   const dirty = useMemo(() => JSON.stringify(draft) !== JSON.stringify(content), [draft, content]);
   const set = useCallback((path, value) => setDraft((d) => setIn(d, path, value)), []);
 
-  // Label tab dashboard mengikuti draft Navigation (langsung berubah saat mengetik).
-  const panels = useMemo(() => {
-    const labels = getNavLabels(draft);
-    return PANELS.map((p) => ({
-      ...p,
-      label: (p.navId && labels[p.navId]) || p.label,
-    }));
-  }, [draft]);
+  // Label dan urutan tab dashboard mengikuti draft Navigation (langsung berubah saat mengedit).
+  const panels = useMemo(() => buildPanels(draft), [draft]);
 
   // Peringatan sebelum menutup tab bila ada perubahan belum disimpan (web).
   useEffect(() => {

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Platform, Text, View } from 'react-native';
 
 import Avatar from '../components/Avatar';
+import { DEFAULT_LAYOUT, LAYOUTS } from '../components/PostGallery';
 import { ICON_NAMES } from '../components/ServiceIcon';
 import { normalizeContent } from '../hooks/useContent';
 import { fonts } from '../theme';
@@ -55,19 +56,39 @@ export function ProfilePanel({ draft, set }) {
   );
 }
 
+// Bersihkan input URL/path tab: link luar (http/https) dibiarkan, path internal
+// dipaksa diawali "/" dan tanpa spasi.
+const isExternal = (v = '') => /^https?:\/\//i.test(v.trim());
+const cleanPath = (v = '') => {
+  const t = v.trim();
+  if (isExternal(t)) return t;
+  const slug = t.replace(/\s+/g, '-').replace(/^\/*/, '');
+  return `/${slug}`;
+};
+const newTabId = () => `tab-${Date.now().toString(36)}`;
+
 export function TabsPanel({ draft, set }) {
+  const onChange = (items) => set(['tabs'], items.map((t) => ({ ...t, path: cleanPath(t.path) })));
   return (
     <View>
       <Section title="Navigation" first>
-        <Text style={[hint, { marginTop: 6 }]}>Ubah nama, urutan, atau sembunyikan tab di situs.</Text>
+        <Text style={[hint, { marginTop: 6 }]}>
+          Ubah nama, URL, urutan, atau sembunyikan tab di situs. Tambah tab baru untuk halaman atau link luar.
+        </Text>
         <ListEditor
-          fixed
           items={draft.tabs}
-          onChange={(v) => set(['tabs'], v)}
+          onChange={onChange}
+          addLabel="Tab"
+          makeItem={() => {
+            const id = newTabId();
+            return { id, label: 'Tab baru', path: `/${id}`, visible: true };
+          }}
           itemTitle={(t) => t.label}
+          itemSubtitle={(t) => t.path}
           itemRight={(t) => (t.visible === false ? 'Hidden' : 'Shown')}
           fields={[
             { key: 'label', label: 'Nama tab' },
+            { key: 'path', label: 'URL tab (mis. /sertifikat atau https://contoh.com)', placeholder: '/halaman' },
             { key: 'visible', label: 'Tampilkan tab', type: 'toggle' },
           ]}
         />
@@ -76,15 +97,43 @@ export function TabsPanel({ draft, set }) {
   );
 }
 
+// Daftar logo saja (untuk Tools dan Client): tinggal upload gambar logonya.
+const logoList = (key, label, addLabel) => ({
+  key,
+  type: 'list',
+  label,
+  addLabel,
+  makeItem: () => ({ logo: '' }),
+  itemTitle: (it) => (it.logo ? 'Logo' : '(kosong)'),
+  itemRight: () => 'Ubah',
+  fields: [{ key: 'logo', label: 'Logo', type: 'image' }],
+});
+
+// Dulu "Stories", sekarang berfungsi sebagai Activity.
 export function PostsPanel({ draft, set }) {
   return (
     <View>
-      <Section title="Stories" first>
+      <Section title="Activity" first>
         <ListEditor
           items={draft.posts}
           onChange={(v) => set(['posts'], v)}
           addLabel="Kegiatan"
-          makeItem={() => ({ title: 'Judul baru', excerpt: '', body: '', image: '', publishedAt: new Date().toISOString(), published: true })}
+          makeItem={() => ({
+            title: 'Judul baru',
+            link: '',
+            showLink: true,
+            excerpt: '',
+            body: '',
+            image: '',
+            images: [],
+            layout: DEFAULT_LAYOUT,
+            clients: [],
+            showClient: true,
+            tools: [],
+            stack: [],
+            publishedAt: new Date().toISOString(),
+            published: true,
+          })}
           itemTitle={(p) => p.title}
           itemSubtitle={(p) => clip(p.excerpt)}
           itemRight={(p) => (p.published === false ? 'Draft' : relativeTime(p.publishedAt))}
@@ -92,7 +141,24 @@ export function PostsPanel({ draft, set }) {
             { key: 'title', label: 'Judul' },
             { key: 'excerpt', label: 'Kutipan (tampil di kartu)', type: 'multiline' },
             { key: 'body', label: 'Isi lengkap (pisahkan paragraf dengan baris kosong)', type: 'multiline' },
-            { key: 'image', label: 'Gambar thumbnail', type: 'image' },
+            { key: 'image', label: 'Gambar sampul (opsional, kosong = gambar pertama galeri)', type: 'image' },
+            {
+              key: 'images',
+              type: 'list',
+              label: 'Galeri gambar (bisa lebih dari satu)',
+              addLabel: 'Gambar',
+              makeItem: () => ({ src: '' }),
+              itemTitle: (it) => (it.src ? 'Gambar' : '(kosong)'),
+              itemRight: () => 'Ubah',
+              fields: [{ key: 'src', label: 'Gambar', type: 'image' }],
+            },
+            { key: 'layout', label: 'Kolase galeri', type: 'choice', options: LAYOUTS },
+            { key: 'showLink', label: 'Tampilkan link', type: 'toggle' },
+            { key: 'link', label: 'Link (klik judul / tampil di bawah)', placeholder: 'https://' },
+            logoList('tools', 'Tools (logo)', 'Logo'),
+            logoList('stack', 'Stack (logo)', 'Logo'),
+            { key: 'showClient', label: 'Tampilkan client', type: 'toggle' },
+            logoList('clients', 'Client (logo)', 'Logo'),
             { key: 'publishedAt', label: 'Waktu terbit', type: 'date' },
             { key: 'published', label: 'Diterbitkan', type: 'toggle' },
           ]}
@@ -138,31 +204,12 @@ export function ResumePanel({ draft, set }) {
   );
 }
 
-export function ActivityPanel({ draft, set }) {
-  return (
-    <View>
-      <Section title="Activity" first>
-        <ListEditor
-          items={draft.activity}
-          onChange={(v) => set(['activity'], v)}
-          addLabel="Aktivitas"
-          makeItem={() => ({ text: '', date: new Date().toISOString() })}
-          itemTitle={(a) => clip(a.text, 60)}
-          itemRight={(a) => relativeTime(a.date)}
-          fields={[
-            { key: 'text', label: 'Keterangan', type: 'multiline' },
-            { key: 'date', label: 'Waktu', type: 'date' },
-          ]}
-        />
-      </Section>
-    </View>
-  );
-}
+// ActivityPanel lama (daftar teks pendek) dihapus; Activity kini memakai PostsPanel di atas.
 
 export function ListsPanel({ draft, set }) {
   return (
     <View>
-      <Section title="Certifications" first>
+      <Section title="Lists" first>
         <ListEditor
           items={draft.lists}
           onChange={(v) => set(['lists'], v)}

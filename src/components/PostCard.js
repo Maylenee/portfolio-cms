@@ -10,13 +10,12 @@ import Thumb from './Thumb';
 export default function PostCard({ post, profile }) {
   const { px } = useLayout();
   const path = `/post/${post.id}`;
+  // Sampul: pakai thumbnail bila diisi, kalau tidak ambil gambar pertama dari galeri.
+  const cover = post.image || (post.images || []).find((i) => i && i.src)?.src || '';
+
   return (
     <View style={{ marginBottom: px(40) }}>
-      <Pressable
-        accessibilityRole="link"
-        accessibilityLabel={post.title}
-        onPress={() => navigate(path)}
-      >
+      <Pressable accessibilityRole="link" accessibilityLabel={post.title} onPress={() => navigate(path)}>
         <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 11 }}>
           <Avatar uri={profile.avatar} name={profile.name} size={px(26)} />
           <Text style={{ color: colors.meta, fontFamily: fonts.main, fontSize: px(15) }}>
@@ -25,36 +24,20 @@ export default function PostCard({ post, profile }) {
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', columnGap: px(36), marginTop: px(24) }}>
           <View style={{ flex: 1 }}>
-            <Text
-              style={{
-                color: colors.text,
-                fontFamily: fonts.main,
-                fontSize: px(24),
-                lineHeight: px(31),
-                fontWeight: '700',
-                letterSpacing: -0.6,
-              }}
-            >
+            <Text style={{ color: colors.text, fontFamily: fonts.main, fontSize: px(24), lineHeight: px(31), fontWeight: '700', letterSpacing: -0.6 }}>
               {post.title}
             </Text>
             {post.excerpt ? (
               <Text
                 numberOfLines={2}
-                style={{
-                  color: colors.text,
-                  fontFamily: fonts.main,
-                  fontSize: px(19),
-                  lineHeight: px(26),
-                  letterSpacing: -0.19,
-                  marginTop: px(15),
-                }}
+                style={{ color: colors.text, fontFamily: fonts.main, fontSize: px(19), lineHeight: px(26), letterSpacing: -0.19, marginTop: px(15) }}
               >
                 {post.excerpt}
               </Text>
             ) : null}
           </View>
           <View style={{ marginTop: 3 }}>
-            <Thumb uri={post.image} width={px(104)} height={px(69)} />
+            <Thumb uri={cover} width={px(104)} height={px(69)} />
           </View>
         </View>
       </Pressable>
@@ -63,4 +46,4 @@ export default function PostCard({ post, profile }) {
       </View>
     </View>
   );
-}
+} 
